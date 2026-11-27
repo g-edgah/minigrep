@@ -1,11 +1,15 @@
 use std::env;
 use std::fs;
+use std::process;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     //dbg!(args);
 
-    let config = Config::new(&args);
+    let config = Config::new(&args).unwrap_or_else(|error| {
+        println!("error:  {}", error);
+        process::exit(1);
+    });
 
     //dbg!("running {}", config);
     println!("searching for {}", config.query);
@@ -25,19 +29,20 @@ struct Config {
 }
 
 impl Config {
-    fn new(args: &[String]) -> Config {
+    fn new(args: &[String]) -> Result<Config, &'static str> {
         if args.len() < 3 {
-            panic!("all required arguments must be provided")
+            return Err("all required arguments must be provided");
         }
+
         let bin_name = &args[0];
         let query = &args[1];
         let file_path = &args[2];
 
-        Config {
+        Ok(Config {
             bin_name: bin_name.to_string(),
             query: query.to_string(),
             file_path: file_path.to_string(),
-        }
+        })
     }
 
     fn test(&self) -> String {
