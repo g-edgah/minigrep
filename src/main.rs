@@ -7,15 +7,17 @@ fn main() {
 
     let config = Config::new(&args);
 
-    println!("running {0}", config.bin_name);
-    println!("searching for {0}", config.query);
-    println!("in file path {0}\n\n", config.file_path);
+    //dbg!("running {}", config);
+    println!("searching for {}", config.query);
+    println!("in file path {}\n\n", config.file_path);
 
-    let contents = fs::read_to_string(config.file_path).expect("unable to read file");
+    let contents = fs::read_to_string(&config.file_path).expect("unable to read file");
 
-    println!("with text:\n {contents}")
+    println!("with text:\n {contents} \n\n");
+    println!("test: {}", config.test());
 }
 
+#[derive(Debug)]
 struct Config {
     bin_name: String,
     query: String,
@@ -24,6 +26,9 @@ struct Config {
 
 impl Config {
     fn new(args: &[String]) -> Config {
+        if args.len() < 3 {
+            panic!("all required arguments must be provided")
+        }
         let bin_name = &args[0];
         let query = &args[1];
         let file_path = &args[2];
@@ -33,5 +38,10 @@ impl Config {
             query: query.to_string(),
             file_path: file_path.to_string(),
         }
+    }
+
+    fn test(&self) -> String {
+        let bin = self.bin_name.clone();
+        bin
     }
 }
