@@ -1,6 +1,9 @@
 use std::env;
+use std::error::Error;
 use std::fs;
 use std::process;
+
+use minigrep::search;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -15,10 +18,20 @@ fn main() {
     println!("searching for {}", config.query);
     println!("in file path {}\n\n", config.file_path);
 
-    let contents = fs::read_to_string(&config.file_path).expect("unable to read file");
+    if let Err(e) = run(config) {
+        println!("application error: {e}");
+        process::exit(1);
+    };
+}
 
-    println!("with text:\n {contents} \n\n");
-    println!("test: {}", config.test());
+fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    let contents = fs::read_to_string(&config.file_path)?;
+
+    for line in minigrep::search(&config.query, &contents) {
+        println!("{line}\n")
+    }
+
+    Ok(())
 }
 
 #[derive(Debug)]
